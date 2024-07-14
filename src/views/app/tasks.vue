@@ -85,8 +85,9 @@ import DataTable from "primevue/datatable";
 
 import Column from "primevue/column";
 import database from "@/database/tasks.json";
+import type { ITask } from "@/types";
 
-const tasks = ref([]);
+const tasks = ref<ITask[] | []>([]);
 const loading = ref(true);
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },

@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
-
+import type { ITask } from "@/types";
 import { useWindowSize } from "@vueuse/core";
 
 import { onBeforeMount, reactive, ref, computed, watch } from "vue";
@@ -75,11 +75,23 @@ import { Card, Header } from "@/components";
 import Button from "primevue/button";
 import database from "@/database/tasks.json";
 
-const response = computed(() => database).value;
+const response = computed((): ITask[] => database).value;
 const { width } = useWindowSize();
 const fetchingTasks = ref(false);
 const isMobile = ref(false);
-const tasks = reactive({
+
+interface ITaskGroup {
+  label: string;
+  data: ITask[];
+}
+
+interface ITasks {
+  todo: ITaskGroup;
+  doing: ITaskGroup;
+  done: ITaskGroup;
+}
+
+const tasks = reactive<ITasks>({
   todo: {
     label: "To Do",
     data: [],
@@ -96,10 +108,10 @@ const tasks = reactive({
 
 watch(
   width,
-  (newWidth, oldWidth) => {
-    if ((oldWidth > 769 || oldWidth == undefined) && newWidth <= 769) {
+  (newWidth: number, oldWidth: undefined | number) => {
+    if ((oldWidth === undefined || oldWidth > 769) && newWidth <= 769) {
       isMobile.value = true;
-    } else if (newWidth > 769 && (oldWidth <= 769 || oldWidth == undefined)) {
+    } else if (newWidth > 769 && (oldWidth === undefined || oldWidth <= 769)) {
       isMobile.value = false;
     }
   },

@@ -44,16 +44,9 @@
 </template>
 
 <script setup lang="ts">
+import type { ITask } from "@/types";
 import Card from "primevue/card";
 import Tag from "primevue/tag";
-
-interface ITask {
-  id: number;
-  title: string;
-  description: string;
-  deadline: Date | string;
-  status: 0 | 1 | 2;
-}
 
 const progressColors = ["", "bg-blue-500", "bg-green-500"];
 const progressBars = ["w-0", "w-[50%]", "w-full"];
