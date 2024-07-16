@@ -1,7 +1,8 @@
 export interface ITask {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   deadline: Date | string;
   status: number;
+  users: [];
 }

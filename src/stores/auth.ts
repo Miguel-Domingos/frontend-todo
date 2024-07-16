@@ -1,19 +1,6 @@
 import router from "@/router";
 import { defineStore } from "pinia";
-
-interface IUser {
-  id: number | string;
-  name: string;
-  email: string;
-  admin: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-interface IAuthenticatedUser {
-  token: string;
-  user: {};
-}
+import type { IUser, IAuthenticatedUser } from "@/types";
 
 const userSchema: IUser = {
   id: "",

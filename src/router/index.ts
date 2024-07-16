@@ -7,18 +7,36 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "home",
+      name: "app",
       component: () => import("@/views/app/index.vue"),
+      meta: {
+        requireAuth: true,
+      },
     },
     {
       path: "/login",
-      name: "login",
+      name: "auth:login",
       component: () => import("@/views/auth/login.vue"),
+      meta: {
+        requireAuth: false,
+      },
+    },
+    {
+      path: "/logout",
+      name: "auth:logout",
+      meta: {
+        requireAuth: true,
+      },
+      component: () => import("@/views/auth/logout.vue"),
     },
     {
       path: "/admin",
       name: "admin",
       redirect: "/admin/users",
+      meta: {
+        requireAuth: true,
+        admin: true,
+      },
       children: [
         {
           path: "users",
@@ -32,6 +50,7 @@ const router = createRouter({
         },
       ],
     },
+
     { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },
   ],
 });

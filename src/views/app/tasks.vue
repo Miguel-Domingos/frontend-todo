@@ -2,6 +2,7 @@
   <AdminLayout>
     <div class="w-full">
       <DataTable
+        ref="DataTableRef"
         class="overflow-hidden border border-solid rounded-lg dark:border-zinc-800"
         showGridlines
         v-model:filters="filters"
@@ -19,7 +20,16 @@
               <span class="text-3xl font-semibold">Tarefas</span>
             </div>
             <div class="flex items-center justify-between mt-1">
-              <span>novo</span>
+              <div class="flex gap-2">
+                <Button
+                  icon="pi pi-external-link"
+                  label="Exportar"
+                  size="small"
+                  @click="exportCSV"
+                  class="!text-white"
+                />
+                <NewTask @create="fetchTasks()" />
+              </div>
 
               <IconField>
                 <InputIcon>
@@ -38,11 +48,8 @@
         <template #loading> Carregado tarefas </template>
         <Column field="id" header="ID" sortable />
 
-        <Column field="title" header="Titulo" sortable>
-          <template #body="{ data }">
-            {{ data.title }}
-          </template>
-        </Column>
+        <Column field="title" header="Titulo" sortable />
+
         <Column header="Descrição" field="description" sortable>
           <template #body="{ data }">
             <span class="line-clamp-2">{{ data.description }}</span>
@@ -53,18 +60,30 @@
             <span>{{ data.deadline }}</span>
           </template>
         </Column>
+        <Column header="Encarregado" field="users" sortable>
+          <template #body="{ data }">
+            <div class="flex justify-center gap-1">
+              <span
+                class="text-sm"
+                v-for="user in data.users"
+                :title="user.name"
+                >{{ user.name.split(" ")[0] }},
+              </span>
+            </div>
+          </template>
+        </Column>
 
         <Column header="Estado" field="status" sortable>
           <template #body="{ data }">
-            <span>{{ data.status }}</span>
+            <span>{{ taskStatus[data.status] }}</span>
           </template>
         </Column>
 
         <Column header="Ações" field="actions">
           <template #body="{ data }">
             <div class="flex gap-2">
-              <span>editar</span>
-              <span>apagar</span>
+              <EditTask :readOnly="false" :task="data" @update="fetchTasks()" />
+              <DeleteTask :task="data" @delete="fetchTasks()" />
             </div>
           </template>
         </Column>
@@ -75,31 +94,45 @@
 
 <script setup lang="ts">
 import { AdminLayout } from "@/layouts";
-
+import { EditTask, DeleteTask, NewTask } from "@/components/Forms";
 import { ref, onBeforeMount } from "vue";
 import { FilterMatchMode } from "@primevue/core/api";
+import Button from "primevue/button";
 import IconField from "primevue/iconfield";
 import InputText from "primevue/inputtext";
 import InputIcon from "primevue/inputicon";
 import DataTable from "primevue/datatable";
-
 import Column from "primevue/column";
-import database from "@/database/tasks.json";
 import type { ITask } from "@/types";
+import services from "@/services";
+import { useToast } from "primevue/usetoast";
 
 const tasks = ref<ITask[] | []>([]);
+const taskStatus = ["Pendente", "Fazendo", "Feito"];
 const loading = ref(true);
+const toast = useToast();
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
 async function fetchTasks() {
-  const response = database;
-  if (response) {
-    tasks.value = response;
+  const response = await services.task.getAll();
+  if (response.data) {
+    tasks.value = response.data.data;
   } else {
-    console.log(response);
+    console.log(response.error);
+    toast.add({
+      severity: "error",
+      summary: "erro",
+      detail: `Erro ao carregar usuários`,
+      life: 3000,
+    });
   }
+}
+
+const DataTableRef = ref();
+function exportCSV() {
+  DataTableRef.value.exportCSV();
 }
 
 onBeforeMount(async () => {

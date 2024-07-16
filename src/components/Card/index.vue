@@ -5,7 +5,14 @@
     class="w-full border border-solid cursor-pointer select-none dark:border-zinc-900"
   >
     <template #title>
-      <span class="font-bold"> {{ task.title }} </span>
+      <div class="flex items-start justify-between w-full">
+        <span class="font-bold"> {{ task.title }} </span>
+        <EditTask :readOnly="true" :task @update="$emit('statusUpdated')">
+          <template #button>
+            <span class="!text-xs pi pi-cog"></span>
+          </template>
+        </EditTask>
+      </div>
     </template>
     <template #content>
       <div class="flex flex-col gap-2 full">
@@ -45,6 +52,7 @@
 
 <script setup lang="ts">
 import type { ITask } from "@/types";
+import { EditTask } from "@/components/Forms";
 import Card from "primevue/card";
 import Tag from "primevue/tag";
 

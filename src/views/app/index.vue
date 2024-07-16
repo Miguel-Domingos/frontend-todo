@@ -25,7 +25,7 @@
 
             <span class="opacity-75">{{ step.data.length }}</span>
           </div>
-          <Button icon="pi pi-plus" text />
+          <!-- <Button v-if="step.label == 'Pendente'" icon="pi pi-plus" text /> -->
         </div>
         <div
           v-if="fetchingTasks"
@@ -41,7 +41,7 @@
                 v-for="task in step.data"
                 v-if="step.data.length > 0"
               >
-                <Card :key="task.id" :task />
+                <Card :key="task.id" :task @statusUpdated="fetchMyTasks()" />
               </swiper-slide>
 
               <span v-else class="flex justify-center w-full opacity-75"
@@ -55,6 +55,7 @@
               :key="task.id"
               :task
               v-if="step.data.length > 0"
+              @statusUpdated="fetchMyTasks()"
             />
             <span v-else class="text-center opacity-75">sem tarefas</span>
           </div>
@@ -69,17 +70,21 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import type { ITask } from "@/types";
 import { useWindowSize } from "@vueuse/core";
-
 import { onBeforeMount, reactive, ref, computed, watch } from "vue";
 import { Card, Header } from "@/components";
 import Button from "primevue/button";
-import database from "@/database/tasks.json";
 
-const response = computed((): ITask[] => database).value;
+import services from "@/services";
+import { useAuthStore } from "@/stores";
+import { storeToRefs } from "pinia";
+import { useToast } from "primevue/usetoast";
+
 const { width } = useWindowSize();
 const fetchingTasks = ref(false);
 const isMobile = ref(false);
+const toast = useToast();
 
+const { id } = storeToRefs(useAuthStore()).user.value;
 interface ITaskGroup {
   label: string;
   data: ITask[];
@@ -93,18 +98,46 @@ interface ITasks {
 
 const tasks = reactive<ITasks>({
   todo: {
-    label: "To Do",
+    label: "Pendente",
     data: [],
   },
   doing: {
-    label: "Doing",
+    label: "Fazendo",
     data: [],
   },
   done: {
-    label: "Done",
+    label: "Feito",
     data: [],
   },
 });
+
+async function fetchMyTasks() {
+  const response = await services.user.getMyAllTasks(id);
+  if (response.data) {
+    if (response.data.data.length > 0) {
+      tasks.todo.data = [];
+      tasks.doing.data = [];
+      tasks.done.data = [];
+      response.data.data[0].tasks.map((item: ITask) => {
+        if (item.status == 0) {
+          tasks.todo.data.push(item);
+        } else if (item.status == 1) {
+          tasks.doing.data.push(item);
+        } else {
+          tasks.done.data.push(item);
+        }
+      });
+    }
+  } else {
+    console.log(response.error);
+    toast.add({
+      severity: "error",
+      summary: "erro",
+      detail: `Erro ao carregar tarefas de usuário`,
+      life: 3000,
+    });
+  }
+}
 
 watch(
   width,
@@ -119,14 +152,8 @@ watch(
 );
 
 onBeforeMount(async () => {
-  response.map((item) => {
-    if (item.status == 0) {
-      tasks.todo.data.push(item);
-    } else if (item.status == 1) {
-      tasks.doing.data.push(item);
-    } else {
-      tasks.done.data.push(item);
-    }
-  });
+  fetchingTasks.value = true;
+  await fetchMyTasks();
+  fetchingTasks.value = false;
 });
 </script>
