@@ -50,11 +50,11 @@
         </div>
       </div>
       <div class="flex flex-col">
-        <div class="flex gap-2">
+        <div class="flex items-end gap-1">
           <Checkbox v-model="data.admin" id="admin" :binary="true" />
-          <label for="admin">Criar como admin</label>
+          <label for="admin">privilégios de admin</label>
         </div>
-        <small id="admin-help">Selecione para criar o usuário com admin</small>
+        <small id="admin-help">Selecione se o usuário será um admin</small>
       </div>
       <div class="flex justify-end gap-2 mt-2">
         <Button
