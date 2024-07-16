@@ -24,9 +24,9 @@
                 <Button
                   icon="pi pi-external-link"
                   label="Exportar"
+                  severity="contrast"
                   size="small"
-                  @click="exportCSV"
-                  class="!text-white"
+                  @click="ExportUserTable(users)"
                 />
                 <NewUser @create="fetchUsers()" />
               </div>
@@ -81,8 +81,11 @@ import DataTable from "primevue/datatable";
 import { useDate } from "@/composables";
 import Column from "primevue/column";
 import type { IUser } from "@/types";
+import { ExportUserTable } from "@/helpers";
 import services from "@/services";
+
 const { FormattedDate } = useDate();
+
 const users = ref<IUser[] | []>([]);
 const loading = ref(true);
 const toast = useToast();
@@ -103,11 +106,6 @@ async function fetchUsers() {
       life: 3000,
     });
   }
-}
-
-const DataTableRef = ref();
-function exportCSV() {
-  DataTableRef.value.exportCSV();
 }
 
 onBeforeMount(async () => {

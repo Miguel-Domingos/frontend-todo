@@ -114,7 +114,6 @@
     @click="modalRef?.openModal()"
     label="Criar tarefa"
     class="!text-white"
-    severity="info"
     size="small"
   />
 </template>

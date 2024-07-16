@@ -2,7 +2,6 @@
   <AdminLayout>
     <div class="w-full">
       <DataTable
-        ref="DataTableRef"
         class="overflow-hidden border border-solid rounded-lg dark:border-zinc-800"
         showGridlines
         v-model:filters="filters"
@@ -24,9 +23,9 @@
                 <Button
                   icon="pi pi-external-link"
                   label="Exportar"
+                  severity="contrast"
                   size="small"
-                  @click="exportCSV"
-                  class="!text-white"
+                  @click="ExportTaskTable(tasks)"
                 />
                 <NewTask @create="fetchTasks()" />
               </div>
@@ -106,6 +105,7 @@ import Column from "primevue/column";
 import type { ITask } from "@/types";
 import services from "@/services";
 import { useToast } from "primevue/usetoast";
+import { ExportTaskTable } from "@/helpers";
 
 const tasks = ref<ITask[] | []>([]);
 const taskStatus = ["Pendente", "Fazendo", "Feito"];
@@ -128,11 +128,6 @@ async function fetchTasks() {
       life: 3000,
     });
   }
-}
-
-const DataTableRef = ref();
-function exportCSV() {
-  DataTableRef.value.exportCSV();
 }
 
 onBeforeMount(async () => {

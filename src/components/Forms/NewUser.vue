@@ -78,7 +78,6 @@
     @click="modalRef?.openModal()"
     class="!text-white"
     label="Criar usuário"
-    severity="info"
     size="small"
   />
 </template>
