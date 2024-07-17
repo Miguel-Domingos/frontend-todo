@@ -77,7 +77,7 @@
         </template>
       </div>
 
-      <div class="flex flex-col" v-if="readOnly">
+      <div class="flex flex-col">
         <label for="deadline"> Data de entrega </label>
         <DatePicker
           :disabled="readOnly"
@@ -103,7 +103,7 @@
           <small v-else id="deadline-help">Define o dia de entrega</small>
         </template>
       </div>
-      <div class="flex flex-col">
+      <div v-if="readOnly" class="flex flex-col">
         <label for="status">Estado</label>
         <Select
           v-model="data.status"
@@ -122,6 +122,7 @@
         severity="secondary"
         @click="modalRef?.closeModal()"
       ></Button>
+
       <Button
         class="!text-white"
         type="button"
